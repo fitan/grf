@@ -101,3 +101,5 @@ func main()  {
 ```
 
 ### 生成的文档
+![文档生成](https://github.com/fitan/grf/blob/master/readmeimage/swaggerimage.png)
+
