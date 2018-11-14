@@ -103,3 +103,77 @@ func main()  {
 ### 生成的文档
 ![文档生成](https://github.com/fitan/grf/blob/master/readmeimage/swaggerimage.png)
 
+
+### 教程
+```
+type User struct {
+	gorm.Model
+	Name string `json:"name"`
+	Age int `json:"age"`
+}
+```
+用于gorm的model
+```
+type UserInterface struct {
+	Name string `json:"name" form:"name"`
+}
+```
+用于绑定http传过的参数.  
+curl -X GET "http://localhost:10800/user?name=xxxx" -H "accept: application/json"  
+curl -X POST "http://localhost:10800/user" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"name\": \"testname\"}"  
+curl -X PUT "http://localhost:10800/user/1" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"name\": \"string\"}"
+
+同时还会生成  
+curl -X GET "http://localhost:10800/user" -H "accept: application/json"  #获取list是  
+curl -X GET "http://localhost:10800/user/1" -H "accept: application/json"  #通过id获取  
+curl -X DELETE "http://localhost:10800/user/2" -H "accept: application/json"  #通过id删除
+
+实现类
+```
+type UserObj struct {
+}
+
+func (this *UserObj) GetModelObj() interface{} {
+	return new(User)
+} //返回model对象
+
+func (this *UserObj) GetModelObjs() interface{} {
+	objs := make([]*User, 0, 0)
+	return &objs
+} //返回[]model对象
+
+func (this *UserObj) GetInterfaceObj() interface{} {
+	return new(UserInterface)
+} //返回bind对象
+
+func (this *UserObj) GetInterfaceObjs() interface{} {
+	objs := make([]*UserInterface, 0, 0)
+	return &objs
+} //返回[]bind对象 暂时没用到
+
+func (this *UserObj) GetResponsesObj() interface{} {
+	return new(UserResponses)
+} //返回Responses的对象
+
+func (this *UserObj) GetNotes() (notes *grf.Notes)  {
+	notes = new(grf.Notes)
+	notes.GetNote.Summary = "获取用户"
+	notes.GetIdNote.Description = "根据id 获取用户"
+	return
+} //用于生成文档
+func (this *UserObj) GetPaths() []string {
+	return grf.PassDefault()
+} //控制产生哪些方法  ["GET", "POST", "DELETE", "PUT"]
+
+
+type UserView struct {
+	grf.Serializers
+	UserObj
+} #继承序列化
+
+
+Reg.Inset(&UserView{}, "/user") 注册服务
+```
+
+### 把例子运行起来 打开地址 http://localhost:10800/swagger/index.html 就可以清楚看到有哪些功能了
+
